@@ -1,13 +1,12 @@
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
 cc_defaults {
     name: "stats_defaults",
-
-    product_variables: {
-        use_lmkd_stats_log: {
-            cflags: [
-                "-DLMKD_LOG_STATS"
-            ],
-        },
-    },
+    cflags: [
+        "-DLMKD_LOG_STATS"
+    ],
 }
 
 cc_binary {

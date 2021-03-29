@@ -58,12 +58,11 @@ struct kill_stat {
     int32_t min_oom_score;
     int64_t free_mem_kb;
     int64_t free_swap_kb;
-    int tasksize;
 };
 
 #ifdef LMKD_LOG_STATS
 
-#define MEMCG_PROCESS_MEMORY_STAT_PATH "/dev/memcg/apps/uid_%u/pid_%u/memory.stat"
+#define MEMCG_PROCESS_MEMORY_STAT_PATH "/dev/memcg/apps/uid_%u/pid_%d/memory.stat"
 #define PROC_STAT_FILE_PATH "/proc/%d/stat"
 #define PROC_STAT_BUFFER_SIZE 1024
 #define BYTES_IN_KILOBYTE 1024
@@ -89,7 +88,11 @@ int stats_write_lmk_kill_occurred(struct kill_stat *kill_st, struct memory_stat 
 int stats_write_lmk_kill_occurred_pid(int pid, struct kill_stat *kill_st,
                                       struct memory_stat* mem_st);
 
-struct memory_stat *stats_read_memory_stat(bool per_app_memcg, int pid, uid_t uid);
+/**
+ * Reads memory stats used to log the statsd atom. Returns non-null ptr on success.
+ */
+struct memory_stat *stats_read_memory_stat(bool per_app_memcg, int pid, uid_t uid,
+                                           int64_t rss_bytes, int64_t swap_bytes);
 
 /**
  * Registers a process taskname by pid, while it is still alive.
@@ -123,7 +126,10 @@ int stats_write_lmk_kill_occurred_pid(int pid __unused, struct kill_stat *kill_s
 }
 
 static inline struct memory_stat *stats_read_memory_stat(bool per_app_memcg __unused,
-                                    int pid __unused, uid_t uid __unused) { return NULL; }
+                                    int pid __unused, uid_t uid __unused,
+                                    int64_t rss_bytes __unused, int64_t swap_bytes __unused) {
+    return NULL;
+}
 
 static inline void stats_store_taskname(int pid __unused, const char* taskname __unused) {}
 
